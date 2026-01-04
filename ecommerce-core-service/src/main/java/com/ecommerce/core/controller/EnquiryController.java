@@ -5,11 +5,16 @@ import com.ecommerce.core.model.Enquiry.EnquiryStatus;
 import com.ecommerce.core.service.EnquiryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,13 +23,14 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Tag(name = "Enquiries", description = "Enquiry management endpoints")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@Validated
 public class EnquiryController {
 
     private final EnquiryService enquiryService;
 
     @PostMapping
     @Operation(summary = "Create new enquiry")
-    public ResponseEntity<EnquiryDTO> createEnquiry(@RequestBody EnquiryDTO enquiryDTO) {
+    public ResponseEntity<EnquiryDTO> createEnquiry(@Valid @RequestBody EnquiryDTO enquiryDTO) {
         log.info("Creating new enquiry from: {}", enquiryDTO.getEmail());
         EnquiryDTO createdEnquiry = enquiryService.createEnquiry(enquiryDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdEnquiry);
@@ -32,7 +38,8 @@ public class EnquiryController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get enquiry by ID")
-    public ResponseEntity<EnquiryDTO> getEnquiryById(@PathVariable Long id) {
+    public ResponseEntity<EnquiryDTO> getEnquiryById(
+            @PathVariable @Positive(message = "Enquiry ID must be positive") Long id) {
         log.info("Fetching enquiry with id: {}", id);
         EnquiryDTO enquiry = enquiryService.getEnquiryById(id);
         return ResponseEntity.ok(enquiry);
@@ -41,8 +48,8 @@ public class EnquiryController {
     @GetMapping
     @Operation(summary = "Get all enquiries with pagination")
     public ResponseEntity<Page<EnquiryDTO>> getAllEnquiries(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(value = 1, message = "Page must be at least 1") int page,
+            @RequestParam(defaultValue = "10") @Min(value = 1, message = "Size must be at least 1") @Max(value = 100, message = "Size cannot exceed 100") int size) {
         log.info("Fetching all enquiries - page: {}, size: {}", page, size);
         Page<EnquiryDTO> enquiries = enquiryService.getAllEnquiries(page, size);
         return ResponseEntity.ok(enquiries);
@@ -52,8 +59,8 @@ public class EnquiryController {
     @Operation(summary = "Get enquiries by status")
     public ResponseEntity<Page<EnquiryDTO>> getEnquiriesByStatus(
             @PathVariable EnquiryStatus status,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "1") @Min(value = 1, message = "Page must be at least 1") int page,
+            @RequestParam(defaultValue = "10") @Min(value = 1, message = "Size must be at least 1") @Max(value = 100, message = "Size cannot exceed 100") int size) {
         log.info("Fetching enquiries with status: {}", status);
         Page<EnquiryDTO> enquiries = enquiryService.getEnquiriesByStatus(status, page, size);
         return ResponseEntity.ok(enquiries);
@@ -62,7 +69,7 @@ public class EnquiryController {
     @PutMapping("/{id}/status")
     @Operation(summary = "Update enquiry status")
     public ResponseEntity<EnquiryDTO> updateEnquiryStatus(
-            @PathVariable Long id,
+            @PathVariable @Positive(message = "Enquiry ID must be positive") Long id,
             @RequestParam EnquiryStatus status) {
         log.info("Updating enquiry {} status to: {}", id, status);
         EnquiryDTO updatedEnquiry = enquiryService.updateEnquiryStatus(id, status);
@@ -71,7 +78,8 @@ public class EnquiryController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete enquiry")
-    public ResponseEntity<Void> deleteEnquiry(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteEnquiry(
+            @PathVariable @Positive(message = "Enquiry ID must be positive") Long id) {
         log.info("Deleting enquiry with id: {}", id);
         enquiryService.deleteEnquiry(id);
         return ResponseEntity.noContent().build();

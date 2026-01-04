@@ -18,9 +18,10 @@ services:
     networks:
       - ecommerce_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       timeout: 20s
       retries: 10
+    restart: unless-stopped
 
   # Core Service (Backend)
   core-service:
@@ -29,10 +30,15 @@ services:
       dockerfile: Dockerfile
     container_name: ecommerce_core_service
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ecommerce_db
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ecommerce_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: ecommerce_user
       SPRING_DATASOURCE_PASSWORD: ecommerce_pass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      FEATURE_AUTH_ENABLED: "false"
+      FEATURE_PAYMENT_ENABLED: "false"
+      FEATURE_EMAIL_ENABLED: "false"
+      FEATURE_SMS_ENABLED: "false"
+      FEATURE_STORAGE_ENABLED: "false"
     ports:
       - "8080:8080"
     depends_on:
@@ -41,6 +47,12 @@ services:
     networks:
       - ecommerce_network
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/config/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Frontend
   frontend:
@@ -49,7 +61,11 @@ services:
       dockerfile: Dockerfile
     container_name: ecommerce_frontend
     environment:
-      NEXT_PUBLIC_API_URL: http://core-service:8080/api
+      NEXT_PUBLIC_API_URL: http://localhost:8080/api
+      NEXT_PUBLIC_AUTH: "false"
+      NEXT_PUBLIC_PAYMENT: "false"
+      NEXT_PUBLIC_EMAIL: "false"
+      NEXT_PUBLIC_SMS: "false"
     ports:
       - "3000:3000"
     depends_on:
@@ -60,6 +76,7 @@ services:
 
 volumes:
   mysql_data:
+
 
 networks:
   ecommerce_network:

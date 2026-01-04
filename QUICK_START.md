@@ -1,74 +1,104 @@
 # 🚀 Quick Start Guide
 
-## 5-Minute Setup with Docker
+Get the E-Commerce Platform running in under 5 minutes!
 
-### Step 1: Prerequisites
+## 📋 Prerequisites
 
-- Install [Docker](https://www.docker.com/products/docker-desktop)
-- Install [Docker Compose](https://docs.docker.com/compose/install/)
+Choose one of the following options:
 
-### Step 2: Start the Platform
+### Option A: Docker (Recommended)
+
+- Docker Desktop installed
+- Docker Compose installed
+
+### Option B: Manual Setup
+
+- Java 17+
+- Node.js 18+
+- MySQL 8.0
+- Maven 3.8+
+
+---
+
+## 🐳 Option A: Docker Setup (Recommended)
+
+### Step 1: Clone the Repository
 
 ```bash
+git clone https://github.com/prasadsanap8149/e-commerce-website.git
 cd e-commerce-website
+```
+
+### Step 2: Start All Services
+
+```bash
 docker-compose up -d
 ```
 
-### Step 3: Access the Services
-
-| Service  | URL                                       | Credentials        |
-| -------- | ----------------------------------------- | ------------------ |
-| Frontend | http://localhost:3000                     | -                  |
-| API Docs | http://localhost:8080/api/swagger-ui.html | -                  |
-| API Base | http://localhost:8080/api                 | -                  |
-| Database | localhost:3306                            | root:root_password |
-
-### Step 4: Test the APIs
+### Step 3: Wait for Services to Start
 
 ```bash
-# Get all products
-curl http://localhost:8080/api/products
+# Check status
+docker-compose ps
 
-# Create an enquiry
-curl -X POST http://localhost:8080/api/enquiries \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "1234567890",
-    "message": "I am interested in this product"
-  }'
+# View logs
+docker-compose logs -f
+```
 
-# Check features
-curl http://localhost:8080/api/config/features
+### Step 4: Access the Application
 
-# Health check
-curl http://localhost:8080/api/config/health
+| Service      | URL                                       |
+| ------------ | ----------------------------------------- |
+| Frontend     | http://localhost:3000                     |
+| Backend API  | http://localhost:8080/api                 |
+| Swagger UI   | http://localhost:8080/api/swagger-ui.html |
+| Health Check | http://localhost:8080/api/config/health   |
+
+### Stop Services
+
+```bash
+docker-compose down
+```
+
+### Stop and Remove Data
+
+```bash
+docker-compose down -v
 ```
 
 ---
 
-## Manual Setup (Development)
+## 🔧 Option B: Manual Setup
 
-### Backend Setup
+### Step 1: Setup MySQL Database
+
+```bash
+# Start MySQL and login
+mysql -u root -p
+
+# Create database
+CREATE DATABASE ecommerce_db;
+
+# Exit MySQL
+exit
+```
+
+### Step 2: Start Backend Service
 
 ```bash
 cd ecommerce-core-service
 
-# Build the project
-mvn clean install
+# Run with Maven
+./mvnw spring-boot:run
 
-# Run the service
-mvn spring-boot:run
-
-# Or run the JAR
-mvn clean package
+# Or build and run JAR
+./mvnw clean package -DskipTests
 java -jar target/ecommerce-core-service-1.0.0.jar
 ```
 
-**Backend will run on**: `http://localhost:8080/api`
+Backend will be available at: http://localhost:8080/api
 
-### Frontend Setup
+### Step 3: Start Frontend Service
 
 ```bash
 cd ecommerce-frontend
@@ -76,224 +106,142 @@ cd ecommerce-frontend
 # Install dependencies
 npm install
 
-# Run development server
+# Start development server
 npm run dev
-
-# Or build for production
-npm run build
-npm run start
 ```
 
-**Frontend will run on**: `http://localhost:3000`
+Frontend will be available at: http://localhost:3000
 
 ---
 
-## Key Features
+## ✅ Verify Installation
 
-✅ **Product Management**
-
-- List, search, and filter products
-- Category-based browsing
-- Product details with images
-
-✅ **Enquiry System**
-
-- Contact forms
-- Enquiry tracking
-- Status management
-
-✅ **Feature Toggles**
-
-- Enable/disable features via environment variables
-- Toggle auth, payments, email, SMS
-- Flexible architecture
-
-✅ **API Documentation**
-
-- Swagger/OpenAPI integration
-- Interactive API explorer
-- Try it out functionality
-
----
-
-## Project Structure Overview
-
-```
-ecommerce-frontend/
-├── components/    → Reusable React components
-├── pages/         → Next.js pages
-├── config/        → Feature toggles & API config
-├── services/      → API client services
-└── context/       → React Context providers
-
-ecommerce-core-service/
-├── controller/    → REST endpoints
-├── service/       → Business logic
-├── repository/    → Database queries
-├── model/         → Database entities
-├── dto/          → Data transfer objects
-└── exception/    → Error handling
-```
-
----
-
-## Common Commands
-
-### Docker
+### 1. Check Backend Health
 
 ```bash
-# Start all services
-docker-compose up -d
-
-# Stop all services
-docker-compose down
-
-# View logs
-docker-compose logs -f
-
-# Rebuild images
-docker-compose build --no-cache
+curl http://localhost:8080/api/config/health
 ```
 
-### Frontend
+Expected response:
 
-```bash
-npm install              # Install dependencies
-npm run dev              # Development mode
-npm run build            # Production build
-npm run start            # Start production server
-npm test                 # Run tests
-npm run lint             # Run linter
+```json
+{
+  "status": "UP",
+  "service": "ecommerce-core-service",
+  "version": "1.0.0"
+}
 ```
 
-### Backend
+### 2. Check Products API
 
 ```bash
-mvn clean install        # Install dependencies
-mvn spring-boot:run      # Development mode
-mvn clean package        # Build JAR
-mvn test                 # Run tests
+curl http://localhost:8080/api/products
+```
+
+### 3. Open Swagger UI
+
+Navigate to: http://localhost:8080/api/swagger-ui.html
+
+### 4. Open Frontend
+
+Navigate to: http://localhost:3000
+
+---
+
+## 🧪 Test the API
+
+### Create a Product
+
+```bash
+curl -X POST http://localhost:8080/api/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test Product",
+    "description": "A test product",
+    "price": 29.99,
+    "categoryId": 1,
+    "stock": 100
+  }'
+```
+
+### Submit an Enquiry
+
+```bash
+curl -X POST http://localhost:8080/api/enquiries \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "+1-555-0123",
+    "message": "I have a question about your products"
+  }'
 ```
 
 ---
 
-## Database Configuration
+## 📁 Project URLs Summary
 
-### Docker (Default)
-
-The MySQL database is automatically set up with:
-
-- **Host**: localhost
-- **Port**: 3306
-- **Database**: ecommerce_db
-- **Username**: ecommerce_user
-- **Password**: ecommerce_pass
-
-### Manual Setup
-
-```bash
-# Connect to MySQL
-mysql -u root -p
-
-# Create database
-CREATE DATABASE ecommerce_db;
-
-# Import schema
-SOURCE ecommerce-core-service/database-schema.sql;
-```
+| Service     | Local URL                                 | Description          |
+| ----------- | ----------------------------------------- | -------------------- |
+| Frontend    | http://localhost:3000                     | React/Next.js UI     |
+| Backend API | http://localhost:8080/api                 | Spring Boot REST API |
+| Swagger UI  | http://localhost:8080/api/swagger-ui.html | API Documentation    |
+| API Docs    | http://localhost:8080/api/v3/api-docs     | OpenAPI JSON         |
+| Health      | http://localhost:8080/api/config/health   | Health Check         |
+| Features    | http://localhost:8080/api/config/features | Feature Toggles      |
+| MySQL       | localhost:3306                            | Database             |
 
 ---
 
-## Environment Variables
-
-### Frontend (.env.local)
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8080/api
-NEXT_PUBLIC_AUTH=true
-NEXT_PUBLIC_PAYMENT=true
-NEXT_PUBLIC_EMAIL=true
-NEXT_PUBLIC_SMS=false
-```
-
-### Backend (application.yml)
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/ecommerce_db
-    username: root
-    password: root_password
-
-feature:
-  auth:
-    enabled: true
-  payment:
-    enabled: true
-  email:
-    enabled: true
-  sms:
-    enabled: false
-```
-
----
-
-## Troubleshooting
+## 🆘 Troubleshooting
 
 ### Port Already in Use
 
 ```bash
-# Find and kill process on port 3000 (Frontend)
-lsof -ti:3000 | xargs kill -9
+# Check what's using the port
+lsof -i :8080
+lsof -i :3000
 
-# Find and kill process on port 8080 (Backend)
-lsof -ti:8080 | xargs kill -9
-
-# Find and kill process on port 3306 (Database)
-lsof -ti:3306 | xargs kill -9
+# Kill the process
+kill -9 <PID>
 ```
 
-### Database Connection Error
+### Docker Issues
 
 ```bash
-# Check if MySQL is running
-docker-compose ps
+# Rebuild containers
+docker-compose up -d --build
 
-# Restart MySQL
-docker-compose restart mysql
+# Reset everything
+docker-compose down -v
+docker-compose up -d
 ```
 
-### Build Errors
+### Database Connection Issues
 
 ```bash
-# Clean and rebuild backend
-cd ecommerce-core-service
-mvn clean install
+# Check MySQL is running
+docker-compose ps mysql
 
-# Clean and rebuild frontend
-cd ecommerce-frontend
-rm -rf node_modules package-lock.json
-npm install
+# View MySQL logs
+docker-compose logs mysql
+```
+
+### Clear Docker Cache
+
+```bash
+docker system prune -a
 ```
 
 ---
 
-## Next Steps
+## 📚 Next Steps
 
-1. **Browse Products**: http://localhost:3000/products
-2. **Submit Enquiry**: http://localhost:3000/enquiry
-3. **View API Docs**: http://localhost:8080/api/swagger-ui.html
-4. **Check Admin Endpoints**: `/api/products`, `/api/enquiries`
-
----
-
-## Need Help?
-
-- See [Frontend README](./ecommerce-frontend/README.md)
-- See [Backend README](./ecommerce-core-service/README.md)
-- See [Project Overview](./PROJECT_OVERVIEW.md)
-- See [Full Plan](./plan/full-plan.md)
+1. Read the [API Documentation](./docs/API_DOCUMENTATION.md)
+2. Import the [Postman Collection](./docs/postman/E-Commerce-API.postman_collection.json)
+3. Review the [cURL Commands](./docs/CURL_COMMANDS.md)
+4. Check the [Project Overview](./PROJECT_OVERVIEW.md)
 
 ---
 
-**Happy Coding! 🎉**
+Happy coding! 🎉

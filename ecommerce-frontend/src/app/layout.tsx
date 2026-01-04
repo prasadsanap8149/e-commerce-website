@@ -1,6 +1,7 @@
 import React from "react";
 import { Header } from "@/components/common/Header";
 import { Footer } from "@/components/common/Footer";
+import { Providers } from "@/components/common/Providers";
 import "@/styles/globals.css";
 
 export const metadata = {
@@ -20,9 +21,11 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <Header />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
+        <Providers>
+          <Header />
+          <main className="min-h-screen">{children}</main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );
